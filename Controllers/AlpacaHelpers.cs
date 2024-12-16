@@ -1,0 +1,80 @@
+﻿using ASCOM.Common.Alpaca;
+using NINA.Core.Utility;
+using NINA.Equipment.Interfaces.ViewModel;
+using NINA.Profile.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NINA.Alpaca.Controllers {
+
+    internal static class AlpacaHelpers {
+
+        public static bool IsDeviceIdenticalWithAlpacaService(IProfileService profileService, object deviceMediator) {
+            if (Guid.TryParse(profileService.ActiveProfile.SafetyMonitorSettings.Id, out var id)) {
+                if (id == SafetyMonitorController.Id) {
+                    return true;
+                }
+            }
+            try {
+                var type = deviceMediator.GetType();
+                var info = type.GetField("handler", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var handler = info.GetValue(deviceMediator);
+                var handlerType = handler.GetType();
+                var handlerInfo = handlerType.GetProperty("DeviceChooserVM", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                var chooser = (IDeviceChooserVM)handlerInfo.GetValue(handler);
+                if (Guid.TryParse(chooser.SelectedDevice.Id, out var selectedId)) {
+                    if (selectedId == SafetyMonitorController.Id) {
+                        return true;
+                    }
+                }
+            } catch { }
+
+            return false;
+        }
+
+        public static EmptyResponse HandleEmptyResponse(uint clientTransactionId, uint serverTransactionId, Action action) {
+            try {
+                action();
+            } catch (Exception ex) {
+                Logger.Error(ex);
+                return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);
+            }
+            return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.AlpacaNoError, string.Empty);
+        }
+
+        public static async Task<EmptyResponse> HandleEmptyResponse(uint clientTransactionId, uint serverTransactionId, Func<Task> action) {
+            try {
+                await action();
+            } catch (Exception ex) {
+                Logger.Error(ex);
+                return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);
+            }
+            return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.AlpacaNoError, string.Empty);
+        }
+
+        public static IValueResponse<T> HandleValueResponse<T>(uint clientTransactionId, uint serverTransactionId, Func<T> action) {
+            T value = default(T);
+            try {
+                value = action();
+            } catch (Exception ex) {
+                Logger.Error(ex);
+                return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);
+            }
+            return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.AlpacaNoError, string.Empty);
+        }
+
+        public static async Task<IValueResponse<T>> HandleValueResponse<T>(uint clientTransactionId, uint serverTransactionId, Func<Task<T>> action) {
+            T value = default(T);
+            try {
+                value = await action();
+            } catch (Exception ex) {
+                Logger.Error(ex);
+                return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);
+            }
+            return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.AlpacaNoError, string.Empty);
+        }
+    }
+}

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NINA.Alpaca</RootNamespace>
+    <AssemblyName>NINA.Alpaca</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="EmbedIo" Version="3.5.2" />
+    <PackageReference Include="NINA.Plugin" Version="3.1.2.9001" />
+  </ItemGroup>
+  <PropertyGroup />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="&#xD;&#xA;if not exist &quot;%25localappdata%25\NINA\Plugins\3.0.0&quot; (&#xD;&#xA;  echo &quot;Creating $(PlatformName) Plugins folder&quot;&#xD;&#xA;  mkdir &quot;%25localappdata%25\NINA\Plugins\3.0.0&quot;&#xD;&#xA;)&#xD;&#xA;if not exist &quot;%25localappdata%25\NINA\Plugins\3.0.0\Alpaca&quot; (&#xD;&#xA;  echo &quot;Creating $(PlatformName) Plugins Alpaca folder&quot;&#xD;&#xA;  mkdir &quot;%25localappdata%25\NINA\Plugins\3.0.0\Alpaca&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo &quot;Copying $(PlatformName) $(TargetFileName)&quot;&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\Alpaca&quot; /h/i/c/k/e/r/y&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)EmbedIO.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\Alpaca\EmbedIO.dll&quot; /Y&#xD;&#xA;copy &quot;$(TargetDir)Swan.Lite.dll&quot; &quot;%25localappdata%25\NINA\Plugins\3.0.0\Alpaca\Swan.Lite.dll&quot; /Y&#xD;&#xA;  " />
+  </Target>
+</Project>

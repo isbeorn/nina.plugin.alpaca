@@ -1,0 +1,140 @@
+﻿using EmbedIO;
+using EmbedIO.WebApi;
+using Newtonsoft.Json;
+using NINA.Alpaca.Controllers;
+using NINA.Core.Locale;
+using NINA.Core.Utility;
+using NINA.Core.Utility.Notification;
+using NINA.Equipment.Interfaces.Mediator;
+using NINA.Profile.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace NINA.Alpaca {
+
+    public class SwanLogger : Swan.Logging.ILogger {
+        public Swan.Logging.LogLevel LogLevel { get; set; }
+
+        public void Dispose() {
+        }
+
+        public void Log(Swan.Logging.LogMessageReceivedEventArgs logEvent) {
+            switch (logEvent.MessageType) {
+                case Swan.Logging.LogLevel.Fatal:
+                case Swan.Logging.LogLevel.Error:
+                    Logger.Error(logEvent.Message);
+                    break;
+
+                case Swan.Logging.LogLevel.Warning:
+                    Logger.Warning(logEvent.Message);
+                    break;
+
+                case Swan.Logging.LogLevel.Info:
+                    Logger.Info(logEvent.Message);
+                    break;
+
+                case Swan.Logging.LogLevel.Debug:
+                    Logger.Debug(logEvent.Message);
+                    break;
+
+                case Swan.Logging.LogLevel.Trace:
+                    Logger.Trace(logEvent.Message);
+                    break;
+            }
+        }
+    }
+
+    public interface IServiceHost {
+
+        void RunService(IProfileService profileService, ISafetyMonitorMediator safetyMonitor);
+
+        void Stop();
+    }
+
+    public interface IServiceBackend {
+    }
+
+    public class ServiceHost : IServiceHost {
+        private WebServer webServer;
+        private CancellationTokenSource serviceToken;
+
+        public ServiceHost() {
+            serviceToken = null;
+        }
+
+        private WebServer CreateWebServer(IProfileService profileService, ISafetyMonitorMediator safetyMonitor) {
+            Swan.Logging.Logger.RegisterLogger(new SwanLogger());
+
+            return new WebServer(o => o
+                .WithUrlPrefix("http://*:32323/")
+                .WithMode(HttpListenerMode.EmbedIO))
+                .WithWebApi("/", MyResponseSerializerCallback, m => m
+                    .WithController<ManagementController>(() => new ManagementController())
+                    .WithController<SafetyMonitorController>(() => new SafetyMonitorController(profileService, safetyMonitor))
+                );
+        }
+
+        private async Task MyResponseSerializerCallback(IHttpContext context, object data) {
+            var settings = new JsonSerializerSettings {
+            };
+            string jsonResponse = JsonConvert.SerializeObject(data, settings);
+            byte[] buffer = Encoding.UTF8.GetBytes(jsonResponse);
+
+            context.Response.ContentType = "application/json";
+            context.Response.ContentLength64 = buffer.Length;
+            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+            await context.Response.OutputStream.FlushAsync();
+        }
+
+        public void RunService(IProfileService profileService, ISafetyMonitorMediator safetyMonitor) {
+            if (this.webServer != null) {
+                Logger.Trace("Alpaca Service already running during start attempt");
+                return;
+            }
+
+            try {
+                webServer = CreateWebServer(profileService, safetyMonitor);
+                serviceToken = new CancellationTokenSource();
+                webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
+                    if (task.Exception != null) {
+                        if (task.Exception is AggregateException aggregateException && aggregateException.InnerException != null) {
+                            Logger.Error("Failed to start Alpaca Server", aggregateException.InnerException);
+                            Notification.ShowError("Failed to start Alpaca Server: " + aggregateException.InnerException.Message);
+                        } else {
+                            Logger.Error("Failed to start Alpaca Server", task.Exception);
+                            Notification.ShowError("Failed to start Alpaca Server: " + task.Exception.ToString());
+                        }
+                    }
+                });
+            } catch (Exception ex) {
+                Logger.Error("Failed to start Alpaca Server", ex);
+                Notification.ShowError(string.Format(Loc.Instance["LblServerFailed"], ex.Message));
+                throw;
+            }
+        }
+
+        public void Stop() {
+            if (webServer != null) {
+                Logger.Info("Stopping Alpaca Service");
+                try {
+                    serviceToken?.Cancel();
+                    Notification.ShowInformation($"Alpaca Server emulation stopped");
+                    Logger.Info("Alpaca Service stopped");
+                } catch (Exception ex) {
+                    Logger.Error("Failed to stop Alpaca Server", ex);
+                } finally {
+                    try {
+                        webServer?.Dispose();
+                        serviceToken?.Dispose();
+                    } catch { }
+                    webServer = null;
+                    serviceToken = null;
+                }
+            }
+        }
+    }
+}

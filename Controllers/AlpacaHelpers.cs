@@ -35,9 +35,15 @@ namespace NINA.Alpaca.Controllers {
             return false;
         }
 
-        public static EmptyResponse HandleEmptyResponse(uint clientTransactionId, uint serverTransactionId, Action action) {
+        public static IResponse NotImplementedResponse(uint clientTransactionId, uint serverTransactionId) {
+            return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, "The operation is not implemented");
+        }
+
+        public static IResponse HandleEmptyResponse(uint clientTransactionId, uint serverTransactionId, Action action) {
             try {
                 action();
+            } catch (NotImplementedException ex) {
+                return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (Exception ex) {
                 Logger.Error(ex);
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);
@@ -45,9 +51,11 @@ namespace NINA.Alpaca.Controllers {
             return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.AlpacaNoError, string.Empty);
         }
 
-        public static async Task<EmptyResponse> HandleEmptyResponse(uint clientTransactionId, uint serverTransactionId, Func<Task> action) {
+        public static async Task<IResponse> HandleEmptyResponse(uint clientTransactionId, uint serverTransactionId, Func<Task> action) {
             try {
                 await action();
+            } catch (NotImplementedException ex) {
+                return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (Exception ex) {
                 Logger.Error(ex);
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);
@@ -59,6 +67,8 @@ namespace NINA.Alpaca.Controllers {
             T value = default(T);
             try {
                 value = action();
+            } catch (NotImplementedException ex) {
+                return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (Exception ex) {
                 Logger.Error(ex);
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);
@@ -70,6 +80,8 @@ namespace NINA.Alpaca.Controllers {
             T value = default(T);
             try {
                 value = await action();
+            } catch (NotImplementedException ex) {
+                return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (Exception ex) {
                 Logger.Error(ex);
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.UnspecifiedError, ex.Message);

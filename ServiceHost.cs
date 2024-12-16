@@ -50,7 +50,7 @@ namespace NINA.Alpaca {
 
     public interface IServiceHost {
 
-        void RunService(IProfileService profileService, ISafetyMonitorMediator safetyMonitor);
+        void RunService(IProfileService profileService, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor);
 
         void Stop();
     }
@@ -66,7 +66,7 @@ namespace NINA.Alpaca {
             serviceToken = null;
         }
 
-        private WebServer CreateWebServer(IProfileService profileService, ISafetyMonitorMediator safetyMonitor) {
+        private WebServer CreateWebServer(IProfileService profileService, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             Swan.Logging.Logger.RegisterLogger(new SwanLogger());
 
             return new WebServer(o => o
@@ -74,6 +74,7 @@ namespace NINA.Alpaca {
                 .WithMode(HttpListenerMode.EmbedIO))
                 .WithWebApi("/", MyResponseSerializerCallback, m => m
                     .WithController<ManagementController>(() => new ManagementController())
+                    .WithController<WeatherDataController>(() => new WeatherDataController(profileService, weatherMonitor))
                     .WithController<SafetyMonitorController>(() => new SafetyMonitorController(profileService, safetyMonitor))
                 );
         }
@@ -90,14 +91,14 @@ namespace NINA.Alpaca {
             await context.Response.OutputStream.FlushAsync();
         }
 
-        public void RunService(IProfileService profileService, ISafetyMonitorMediator safetyMonitor) {
+        public void RunService(IProfileService profileService, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             if (this.webServer != null) {
                 Logger.Trace("Alpaca Service already running during start attempt");
                 return;
             }
 
             try {
-                webServer = CreateWebServer(profileService, safetyMonitor);
+                webServer = CreateWebServer(profileService, weatherMonitor, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
                     if (task.Exception != null) {

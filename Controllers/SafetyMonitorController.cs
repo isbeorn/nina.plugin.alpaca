@@ -21,6 +21,8 @@ namespace NINA.Alpaca.Controllers {
         public static readonly Guid Id = Guid.Parse("85EA7C77-F77A-4460-A345-F72A831F3750");
         private static uint txId = 0;
 
+        private const string BaseURL = "/api/v1/safetymonitor";
+
         public IProfileService ProfileService { get; }
         public ISafetyMonitorMediator DeviceMediator { get; }
 
@@ -31,8 +33,8 @@ namespace NINA.Alpaca.Controllers {
 
         #region General_Ascom_Device
 
-        [Route(HttpVerbs.Put, "/api/v1/safetymonitor/{DeviceNumber}/action")]
-        public EmptyResponse PutCommandAction(
+        [Route(HttpVerbs.Put, BaseURL + "/{DeviceNumber}/action")]
+        public IResponse PutCommandAction(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Required] string Action,
             [FormField][Required] string Parameters,
@@ -41,8 +43,8 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => DeviceMediator.Action(Action, Parameters));
         }
 
-        [Route(HttpVerbs.Put, "/api/v1/safetymonitor/{DeviceNumber}/commandblind")]
-        public EmptyResponse PutCommandBlind(
+        [Route(HttpVerbs.Put, BaseURL + "/{DeviceNumber}/commandblind")]
+        public IResponse PutCommandBlind(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Required] string Command,
             [FormField][Required] string Raw,
@@ -51,8 +53,8 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => DeviceMediator.SendCommandBlind(Command, Raw?.ToLower() == "true"));
         }
 
-        [Route(HttpVerbs.Put, "/api/v1/safetymonitor/{DeviceNumber}/commandbool")]
-        public EmptyResponse PutCommandBool(
+        [Route(HttpVerbs.Put, BaseURL + "/{DeviceNumber}/commandbool")]
+        public IResponse PutCommandBool(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Required] string Command,
             [FormField][Required] string Raw,
@@ -61,8 +63,8 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => DeviceMediator.SendCommandBool(Command, Raw?.ToLower() == "true"));
         }
 
-        [Route(HttpVerbs.Put, "/api/v1/safetymonitor/{DeviceNumber}/commandstring")]
-        public EmptyResponse PutCommandString(
+        [Route(HttpVerbs.Put, BaseURL + "/{DeviceNumber}/commandstring")]
+        public IResponse PutCommandString(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Required] string Command,
             [FormField][Required] string Raw,
@@ -71,8 +73,8 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => DeviceMediator.SendCommandString(Command, Raw?.ToLower() == "true"));
         }
 
-        [Route(HttpVerbs.Put, "/api/v1/safetymonitor/{DeviceNumber}/connected")]
-        public Task<EmptyResponse> PutConnected(
+        [Route(HttpVerbs.Put, BaseURL + "/{DeviceNumber}/connected")]
+        public Task<IResponse> PutConnected(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Required] bool Connected,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -92,7 +94,7 @@ namespace NINA.Alpaca.Controllers {
             });
         }
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/connected")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/connected")]
         public IValueResponse<bool> GetConnected(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -100,7 +102,7 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Connected);
         }
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/description")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/description")]
         public IValueResponse<string> GetDescription(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -108,7 +110,7 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Description);
         }
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/driverinfo")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/driverinfo")]
         public IValueResponse<string> GetDriverInfo(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -116,7 +118,7 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().DriverInfo);
         }
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/driverversion")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/driverversion")]
         public IValueResponse<string> GetDriverVersion(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -124,7 +126,7 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().DriverVersion);
         }
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/interfaceversion")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/interfaceversion")]
         public IValueResponse<int> GetInterfaceVersion(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -132,7 +134,7 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => 2);
         }
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/name")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/name")]
         public IValueResponse<string> GetName(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -140,7 +142,7 @@ namespace NINA.Alpaca.Controllers {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Name);
         }
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/supportedactions")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/supportedactions")]
         public IValueResponse<IList<string>> GetSupportedActions(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
@@ -150,7 +152,7 @@ namespace NINA.Alpaca.Controllers {
 
         #endregion General_Ascom_Device
 
-        [Route(HttpVerbs.Get, "/api/v1/safetymonitor/{DeviceNumber}/issafe")]
+        [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/issafe")]
         public IValueResponse<bool> GetIsSafe(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,

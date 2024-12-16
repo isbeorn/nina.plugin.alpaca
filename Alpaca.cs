@@ -37,7 +37,7 @@ namespace NINA.Alpaca {
         // Implementing a file pattern
 
         [ImportingConstructor]
-        public Alpaca(IProfileService profileService, IOptionsVM options, ISafetyMonitorMediator safetyMonitor) {
+        public Alpaca(IProfileService profileService, IOptionsVM options, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             if (Settings.Default.UpdateSettings) {
                 Settings.Default.Upgrade();
                 Settings.Default.UpdateSettings = false;
@@ -52,7 +52,7 @@ namespace NINA.Alpaca {
 
             DiscoveryManager.Start();
             serviceHost = new ServiceHost();
-            serviceHost.RunService(profileService, safetyMonitor);
+            serviceHost.RunService(profileService, weatherMonitor, safetyMonitor);
         }
 
         public override Task Teardown() {

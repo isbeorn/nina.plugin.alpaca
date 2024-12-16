@@ -34,6 +34,7 @@ namespace NINA.Alpaca.Controllers {
             [Range(0, 4294967295)] uint ClientID = 0,
             [Range(0, 4294967295)] uint ClientTransactionID = 0) {
             var devices = new List<AlpacaConfiguredDevice> {
+                new AlpacaConfiguredDevice("N.I.N.A. Filter Wheel", "FilterWheel", 0, FilterWheelController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Weather Device", "ObservingConditions", 0, WeatherDataController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Safety Monitor", "SafetyMonitor", 0, SafetyMonitorController.Id.ToString())
             };

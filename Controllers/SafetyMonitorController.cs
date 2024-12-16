@@ -22,6 +22,7 @@ namespace NINA.Alpaca.Controllers {
         private static uint txId = 0;
 
         private const string BaseURL = "/api/v1/safetymonitor";
+        private const int InterfaceVersion = 1; //ASCOM.Common.DeviceInterfaces.ISafetyMonitor
 
         public IProfileService ProfileService { get; }
         public ISafetyMonitorMediator DeviceMediator { get; }
@@ -131,7 +132,7 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => 2);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => InterfaceVersion);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/name")]

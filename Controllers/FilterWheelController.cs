@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NINA.Equipment.Interfaces;
+using ASCOM;
 
 namespace NINA.Alpaca.Controllers {
 
@@ -79,7 +80,7 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, async () => {
                 if (AlpacaHelpers.IsDeviceIdenticalWithAlpacaService(ProfileService, DeviceMediator)) {
-                    throw new InvalidOperationException("The application cannot connect to its own hosted Alpaca device. Please ensure the host is accessed by other applications only.");
+                    throw new ASCOM.InvalidOperationException("The application cannot connect to its own hosted Alpaca device. Please ensure the host is accessed by other applications only.");
                 }
 
                 if (Connected && !DeviceMediator.GetInfo().Connected) {
@@ -165,7 +166,7 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => {
-                DeviceMediator.ChangeFilter(ProfileService.ActiveProfile.FilterWheelSettings.FilterWheelFilters.First(x => x.Position == Position));
+                DeviceMediator.ChangeFilter(ProfileService.ActiveProfile.FilterWheelSettings.FilterWheelFilters.FirstOrDefault(x => x.Position == Position) ?? throw new InvalidValueException());
             });
         }
 

@@ -58,6 +58,7 @@ namespace NINA.Alpaca {
                         IFilterWheelMediator filterWheelMediator,
                         IRotatorMediator rotatorMediator,
                         IWeatherDataMediator weatherMonitor,
+                        IDomeMediator domeMediator,
                         ISafetyMonitorMediator safetyMonitor);
 
         void Stop();
@@ -83,6 +84,7 @@ namespace NINA.Alpaca {
                                           IFilterWheelMediator filterWheelMediator,
                                           IRotatorMediator rotatorMediator,
                                           IWeatherDataMediator weatherMonitor,
+                                          IDomeMediator domeMediator,
                                           ISafetyMonitorMediator safetyMonitor) {
             Swan.Logging.Logger.RegisterLogger(new SwanLogger());
 
@@ -96,6 +98,7 @@ namespace NINA.Alpaca {
                     .WithController<FilterWheelController>(() => new FilterWheelController(profileService, filterWheelMediator))
                     .WithController<RotatorController>(() => new RotatorController(profileService, rotatorMediator))
                     .WithController<WeatherDataController>(() => new WeatherDataController(profileService, weatherMonitor))
+                    .WithController<DomeController>(() => new DomeController(profileService, domeMediator))
                     .WithController<SafetyMonitorController>(() => new SafetyMonitorController(profileService, safetyMonitor))
                 );
         }
@@ -119,6 +122,7 @@ namespace NINA.Alpaca {
                                IFilterWheelMediator filterWheelMediator,
                                IRotatorMediator rotatorMediator,
                                IWeatherDataMediator weatherMonitor,
+                               IDomeMediator domeMediator,
                                ISafetyMonitorMediator safetyMonitor) {
             if (IsRunning) {
                 Logger.Trace("Alpaca Service already running during start attempt");
@@ -126,7 +130,7 @@ namespace NINA.Alpaca {
             }
 
             try {
-                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, weatherMonitor, safetyMonitor);
+                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, weatherMonitor, domeMediator, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 IsRunning = true;
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {

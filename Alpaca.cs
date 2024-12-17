@@ -39,6 +39,7 @@ namespace NINA.Alpaca {
         private readonly IFilterWheelMediator filterWheelMediator;
         private readonly IRotatorMediator rotatorMediator;
         private readonly IWeatherDataMediator weatherMonitor;
+        private readonly IDomeMediator domeMediator;
         private readonly ISafetyMonitorMediator safetyMonitor;
         private IServiceHost serviceHost;
 
@@ -52,6 +53,7 @@ namespace NINA.Alpaca {
                       IFilterWheelMediator filterWheelMediator,
                       IRotatorMediator rotatorMediator,
                       IWeatherDataMediator weatherMonitor,
+                      IDomeMediator domeMediator,
                       ISafetyMonitorMediator safetyMonitor) {
             if (Settings.Default.UpdateSettings) {
                 Settings.Default.Upgrade();
@@ -67,6 +69,7 @@ namespace NINA.Alpaca {
             this.filterWheelMediator = filterWheelMediator;
             this.rotatorMediator = rotatorMediator;
             this.weatherMonitor = weatherMonitor;
+            this.domeMediator = domeMediator;
             this.safetyMonitor = safetyMonitor;
             // React on a changed profile
             profileService.ProfileChanged += ProfileService_ProfileChanged;
@@ -105,7 +108,7 @@ namespace NINA.Alpaca {
             if (serviceHost.IsRunning) {
                 serviceHost.Stop();
             }
-            serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, weatherMonitor, safetyMonitor);
+            serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, weatherMonitor, domeMediator, safetyMonitor);
             DiscoveryManager.Start(AlpacaDevicePort);
         }
 

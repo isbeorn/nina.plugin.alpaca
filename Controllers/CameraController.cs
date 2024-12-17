@@ -218,7 +218,7 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => {
                 if (BinX < 1) { throw new ASCOM.InvalidValueException("BinX", BinX.ToString(), "> 0"); }
-                var maxBin = DeviceMediator.GetInfo().BinningModes.MaxBy(x => x.X).X;
+                var maxBin = (DeviceMediator.GetDevice() as ICamera).MaxBinX;
                 if (BinX > maxBin) { throw new ASCOM.InvalidValueException("BinX", BinX.ToString(), $"<= {maxBin}"); }
                 DeviceMediator.SetBinning(BinX, DeviceMediator.GetInfo().BinX);
             });
@@ -240,7 +240,7 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => {
                 if (BinY < 1) { throw new ASCOM.InvalidValueException("BinY", BinY.ToString(), $"> 0"); }
-                var maxBin = DeviceMediator.GetInfo().BinningModes.MaxBy(x => x.Y).Y;
+                var maxBin = (DeviceMediator.GetDevice() as ICamera).MaxBinY;
                 if (BinY > maxBin) { throw new ASCOM.InvalidValueException("BinY", BinY.ToString(), $"<= {maxBin}"); }
                 DeviceMediator.SetBinning(DeviceMediator.GetInfo().BinX, BinY);
             });
@@ -504,12 +504,20 @@ namespace NINA.Alpaca.Controllers {
             if (exposureTask is null && lastExposure is null) {
                 var response = AlpacaTools.ToByteArray(null, 1, ClientTransactionID, txId++, AlpacaErrors.InvalidOperationException, "Image is not ready");
                 await HttpContext.Response.OutputStream.WriteAsync(response, 0, response.Length);
+                return;
             }
             if (exposureTask is not null) {
                 exposureTask = null;
                 isExposing = false;
                 lastExposure = await DeviceMediator.Download(default);
             }
+
+            if (lastExposure is null) {
+                var response = AlpacaTools.ToByteArray(null, 1, ClientTransactionID, txId++, AlpacaErrors.InvalidOperationException, "Image is not ready");
+                await HttpContext.Response.OutputStream.WriteAsync(response, 0, response.Length);
+                return;
+            }
+
             var imageData = await lastExposure.ToImageData();
             Response.ContentType = "application/imagebytes";
             HttpContext.Response.ContentType = "application/imagebytes";
@@ -566,7 +574,7 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().BinningModes.MaxBy(x => x.X).X);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (DeviceMediator.GetDevice() as ICamera).MaxBinX);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/maxbiny")]
@@ -574,7 +582,7 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().BinningModes.MaxBy(x => x.Y).Y);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (DeviceMediator.GetDevice() as ICamera).MaxBinY);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/numx")]
@@ -857,9 +865,9 @@ namespace NINA.Alpaca.Controllers {
                 }
 
                 seq.Dither = false;
+                lastExposure = null;
                 exposureTask = DeviceMediator.Capture(seq, default, new Progress<ApplicationStatus>());
                 exposureTask.ContinueWith(t => isExposing = false);
-                lastExposure = null;
                 isExposing = true;
             });
         }

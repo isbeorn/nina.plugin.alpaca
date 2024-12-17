@@ -6,6 +6,10 @@
     "Profile 1": {
       "commandName": "Executable",
       "executablePath": "C:\\Program Files\\N.I.N.A. - Nighttime Imaging 'N' Astronomy\\NINA.exe"
+    },
+    "Profile 2": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Projects\\nina\\NINA\\bin\\Debug\\net8.0-windows\\win-x64\\NINA.exe"
     }
   }
 }

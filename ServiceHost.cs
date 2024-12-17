@@ -50,7 +50,7 @@ namespace NINA.Alpaca {
 
     public interface IServiceHost {
 
-        void RunService(IProfileService profileService, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor);
+        void RunService(IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor);
 
         void Stop();
     }
@@ -66,7 +66,7 @@ namespace NINA.Alpaca {
             serviceToken = null;
         }
 
-        private WebServer CreateWebServer(IProfileService profileService, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
+        private WebServer CreateWebServer(IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             Swan.Logging.Logger.RegisterLogger(new SwanLogger());
 
             return new WebServer(o => o
@@ -74,6 +74,7 @@ namespace NINA.Alpaca {
                 .WithMode(HttpListenerMode.EmbedIO))
                 .WithWebApi("/", MyResponseSerializerCallback, m => m
                     .WithController<ManagementController>(() => new ManagementController())
+                    .WithController<CameraController>(() => new CameraController(profileService, cameraMediator))
                     .WithController<FilterWheelController>(() => new FilterWheelController(profileService, filterWheelMediator))
                     .WithController<WeatherDataController>(() => new WeatherDataController(profileService, weatherMonitor))
                     .WithController<SafetyMonitorController>(() => new SafetyMonitorController(profileService, safetyMonitor))
@@ -92,14 +93,14 @@ namespace NINA.Alpaca {
             await context.Response.OutputStream.FlushAsync();
         }
 
-        public void RunService(IProfileService profileService, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
+        public void RunService(IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             if (this.webServer != null) {
                 Logger.Trace("Alpaca Service already running during start attempt");
                 return;
             }
 
             try {
-                webServer = CreateWebServer(profileService, filterWheelMediator, weatherMonitor, safetyMonitor);
+                webServer = CreateWebServer(profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
                     if (task.Exception != null) {

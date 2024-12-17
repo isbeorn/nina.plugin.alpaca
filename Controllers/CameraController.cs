@@ -20,10 +20,11 @@ using ASCOM.Common.DeviceInterfaces;
 using NINA.Image.Interfaces;
 using ASCOM;
 using NINA.Sequencer.SequenceItem.Imaging;
+using NINA.Equipment.Equipment.MyCamera;
 
 namespace NINA.Alpaca.Controllers {
 
-    public class CameraController : WebApiController {
+    public class CameraController : WebApiController, ICameraConsumer {
         public static readonly Guid Id = Guid.Parse("04C7F3FA-2100-418E-9253-8E21AF6317E6");
         private static uint txId = 0;
         private static Dictionary<uint, bool> connectionState = new Dictionary<uint, bool>();
@@ -250,7 +251,12 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientID, txId++, () => isExposing ? (int)CameraState.Exposing : (int)CameraState.Idle);
+            return AlpacaHelpers.HandleValueResponse(ClientID, txId++, () => {
+                if (!DeviceMediator.IsFreeToCapture(this)) {
+                    return (int)CameraState.Exposing;
+                }
+                return isExposing ? (int)CameraState.Exposing : (int)CameraState.Idle;
+            });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/cameraxsize")]
@@ -836,6 +842,7 @@ namespace NINA.Alpaca.Controllers {
                         throw new InvalidValueException("StartExposure, ROI is incorrect, size too big!");
                     }
 
+                    seq.EnableSubSample = true;
                     seq.SubSambleRectangle = new Core.Utility.ObservableRectangle(overrideStartX, overrideStartY, overrideNumX, overrideNumY);
                 } else {
                     seq.EnableSubSample = false;
@@ -854,6 +861,12 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.NotImplementedResponse(ClientTransactionID, txId++);
+        }
+
+        public void UpdateDeviceInfo(CameraInfo deviceInfo) {
+        }
+
+        public void Dispose() {
         }
     }
 }

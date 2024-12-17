@@ -1,4 +1,5 @@
-﻿using NINA.Alpaca.Properties;
+﻿using ASCOM.Com.DriverAccess;
+using NINA.Alpaca.Properties;
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Equipment.Interfaces.Mediator;
@@ -9,6 +10,7 @@ using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Interfaces.ViewModel;
+using NINA.WPF.Base.Mediator;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,7 +34,11 @@ namespace NINA.Alpaca {
     public class Alpaca : PluginBase, INotifyPropertyChanged {
         private readonly IPluginOptionsAccessor pluginSettings;
         private readonly IProfileService profileService;
-        private ServiceHost serviceHost;
+        private readonly ICameraMediator cameraMediator;
+        private readonly IFilterWheelMediator filterWheelMediator;
+        private readonly IWeatherDataMediator weatherMonitor;
+        private readonly ISafetyMonitorMediator safetyMonitor;
+        private IServiceHost serviceHost;
 
         // Implementing a file pattern
 
@@ -47,12 +53,15 @@ namespace NINA.Alpaca {
             // This helper class can be used to store plugin settings that are dependent on the current profile
             this.pluginSettings = new PluginOptionsAccessor(profileService, Guid.Parse(this.Identifier));
             this.profileService = profileService;
+            this.cameraMediator = cameraMediator;
+            this.filterWheelMediator = filterWheelMediator;
+            this.weatherMonitor = weatherMonitor;
+            this.safetyMonitor = safetyMonitor;
             // React on a changed profile
             profileService.ProfileChanged += ProfileService_ProfileChanged;
 
-            DiscoveryManager.Start();
             serviceHost = new ServiceHost();
-            serviceHost.RunService(profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
+            RestartService();
         }
 
         public override Task Teardown() {
@@ -65,15 +74,29 @@ namespace NINA.Alpaca {
         private void ProfileService_ProfileChanged(object sender, EventArgs e) {
         }
 
-        /*public string ProfileSpecificNotificationMessage {
+        public int AlpacaDevicePort {
             get {
-                return pluginSettings.GetValueString(nameof(ProfileSpecificNotificationMessage), string.Empty);
+                return pluginSettings.GetValueInt32(nameof(AlpacaDevicePort), 32323);
             }
             set {
-                pluginSettings.SetValueString(nameof(ProfileSpecificNotificationMessage), value);
+                pluginSettings.SetValueInt32(nameof(AlpacaDevicePort), value);
                 RaisePropertyChanged();
+
+                RestartService();
             }
-        }*/
+        }
+
+        private void RestartService() {
+            if (DiscoveryManager.IsRunning) {
+                DiscoveryManager.Stop();
+            }
+
+            DiscoveryManager.Start(AlpacaDevicePort);
+
+            if (serviceHost.IsRunning) {
+                serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -68,14 +68,14 @@ namespace NINA.Alpaca {
 
         public static bool IsRunning => !DiscoveryResponder?.Disposed ?? false;
 
-        public static void Start() {
+        public static void Start(int alpacaPort) {
             Logger.Debug("Starting discovery responder from defaults");
             var ipv6 = true;
             if (!Dns.GetHostAddresses(Dns.GetHostName()).Any(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)) {
                 ipv6 = false;
             }
 
-            DiscoveryResponder = new Responder(AlpacaPort: 32323, IPv4: true, IPv6: ipv6, Logger: new AscomLogger()) {
+            DiscoveryResponder = new Responder(AlpacaPort: alpacaPort, IPv4: true, IPv6: ipv6, Logger: new AscomLogger()) {
                 AllowRemoteAccess = true,
                 LocalRespondOnlyToLocalHost = true
             };

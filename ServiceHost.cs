@@ -49,8 +49,9 @@ namespace NINA.Alpaca {
     }
 
     public interface IServiceHost {
+        public bool IsRunning { get; }
 
-        void RunService(IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor);
+        void RunService(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor);
 
         void Stop();
     }
@@ -62,15 +63,17 @@ namespace NINA.Alpaca {
         private WebServer webServer;
         private CancellationTokenSource serviceToken;
 
+        public bool IsRunning { get; private set; }
+
         public ServiceHost() {
             serviceToken = null;
         }
 
-        private WebServer CreateWebServer(IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
+        private WebServer CreateWebServer(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             Swan.Logging.Logger.RegisterLogger(new SwanLogger());
 
             return new WebServer(o => o
-                .WithUrlPrefix("http://*:32323/")
+                .WithUrlPrefix($"http://*:{alpacaPort}/")
                 .WithMode(HttpListenerMode.EmbedIO))
                 .WithWebApi("/", MyResponseSerializerCallback, m => m
                     .WithController<ManagementController>(() => new ManagementController())
@@ -93,29 +96,32 @@ namespace NINA.Alpaca {
             await context.Response.OutputStream.FlushAsync();
         }
 
-        public void RunService(IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
+        public void RunService(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             if (this.webServer != null) {
                 Logger.Trace("Alpaca Service already running during start attempt");
                 return;
             }
 
             try {
-                webServer = CreateWebServer(profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
+                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
                     if (task.Exception != null) {
                         if (task.Exception is AggregateException aggregateException && aggregateException.InnerException != null) {
                             Logger.Error("Failed to start Alpaca Server", aggregateException.InnerException);
                             Notification.ShowError("Failed to start Alpaca Server: " + aggregateException.InnerException.Message);
+                            IsRunning = true;
                         } else {
                             Logger.Error("Failed to start Alpaca Server", task.Exception);
                             Notification.ShowError("Failed to start Alpaca Server: " + task.Exception.ToString());
+                            IsRunning = false;
                         }
                     }
                 });
             } catch (Exception ex) {
                 Logger.Error("Failed to start Alpaca Server", ex);
                 Notification.ShowError(string.Format(Loc.Instance["LblServerFailed"], ex.Message));
+                IsRunning = false;
                 throw;
             }
         }
@@ -130,6 +136,7 @@ namespace NINA.Alpaca {
                 } catch (Exception ex) {
                     Logger.Error("Failed to stop Alpaca Server", ex);
                 } finally {
+                    IsRunning = false;
                     try {
                         webServer?.Dispose();
                         serviceToken?.Dispose();

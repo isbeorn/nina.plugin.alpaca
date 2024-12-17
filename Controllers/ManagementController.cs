@@ -37,6 +37,7 @@ namespace NINA.Alpaca.Controllers {
                 new AlpacaConfiguredDevice("N.I.N.A. Camera", "Camera", 0, CameraController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Focuser", "Focuser", 0, FocuserController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Filter Wheel", "FilterWheel", 0, FilterWheelController.Id.ToString()),
+                new AlpacaConfiguredDevice("N.I.N.A. Rotator", "Rotator", 0, RotatorController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Weather Device", "ObservingConditions", 0, WeatherDataController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Safety Monitor", "SafetyMonitor", 0, SafetyMonitorController.Id.ToString())
             };

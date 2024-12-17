@@ -35,6 +35,7 @@ namespace NINA.Alpaca {
         private readonly IPluginOptionsAccessor pluginSettings;
         private readonly IProfileService profileService;
         private readonly ICameraMediator cameraMediator;
+        private readonly IFocuserMediator focuserMediator;
         private readonly IFilterWheelMediator filterWheelMediator;
         private readonly IWeatherDataMediator weatherMonitor;
         private readonly ISafetyMonitorMediator safetyMonitor;
@@ -43,7 +44,7 @@ namespace NINA.Alpaca {
         // Implementing a file pattern
 
         [ImportingConstructor]
-        public Alpaca(IProfileService profileService, IOptionsVM options, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
+        public Alpaca(IProfileService profileService, IOptionsVM options, ICameraMediator cameraMediator, IFocuserMediator focuserMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             if (Settings.Default.UpdateSettings) {
                 Settings.Default.Upgrade();
                 Settings.Default.UpdateSettings = false;
@@ -54,6 +55,7 @@ namespace NINA.Alpaca {
             this.pluginSettings = new PluginOptionsAccessor(profileService, Guid.Parse(this.Identifier));
             this.profileService = profileService;
             this.cameraMediator = cameraMediator;
+            this.focuserMediator = focuserMediator;
             this.filterWheelMediator = filterWheelMediator;
             this.weatherMonitor = weatherMonitor;
             this.safetyMonitor = safetyMonitor;
@@ -94,7 +96,7 @@ namespace NINA.Alpaca {
             if (serviceHost.IsRunning) {
                 serviceHost.Stop();
             }
-            serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
+            serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, focuserMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
             DiscoveryManager.Start(AlpacaDevicePort);
         }
 

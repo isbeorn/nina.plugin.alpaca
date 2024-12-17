@@ -51,7 +51,7 @@ namespace NINA.Alpaca {
     public interface IServiceHost {
         public bool IsRunning { get; }
 
-        void RunService(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor);
+        void RunService(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFocuserMediator focuserMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor);
 
         void Stop();
     }
@@ -69,7 +69,7 @@ namespace NINA.Alpaca {
             serviceToken = null;
         }
 
-        private WebServer CreateWebServer(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
+        private WebServer CreateWebServer(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFocuserMediator focuserMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             Swan.Logging.Logger.RegisterLogger(new SwanLogger());
 
             return new WebServer(o => o
@@ -78,6 +78,7 @@ namespace NINA.Alpaca {
                 .WithWebApi("/", MyResponseSerializerCallback, m => m
                     .WithController<ManagementController>(() => new ManagementController())
                     .WithController<CameraController>(() => new CameraController(profileService, cameraMediator))
+                    .WithController<FocuserController>(() => new FocuserController(profileService, focuserMediator))
                     .WithController<FilterWheelController>(() => new FilterWheelController(profileService, filterWheelMediator))
                     .WithController<WeatherDataController>(() => new WeatherDataController(profileService, weatherMonitor))
                     .WithController<SafetyMonitorController>(() => new SafetyMonitorController(profileService, safetyMonitor))
@@ -96,14 +97,14 @@ namespace NINA.Alpaca {
             await context.Response.OutputStream.FlushAsync();
         }
 
-        public void RunService(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
+        public void RunService(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFocuserMediator focuserMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
             if (IsRunning) {
                 Logger.Trace("Alpaca Service already running during start attempt");
                 return;
             }
 
             try {
-                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
+                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 IsRunning = true;
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {

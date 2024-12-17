@@ -36,6 +36,29 @@ namespace NINA.Alpaca.Controllers {
             return false;
         }
 
+        public static ushort[,] ConvertToMonochromeArray(ushort[] flatArray, int width, int height) {
+            // Validate inputs
+            if (flatArray == null)
+                throw new ArgumentNullException(nameof(flatArray));
+            if (flatArray.Length != width * height)
+                throw new ArgumentException("The size of the flat array does not match the given width and height.");
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Width and height must be positive integers.");
+
+            // Initialize the jagged array
+            ushort[,] imageArray = new ushort[width, height];
+
+            for (int x = 0; x < width; x++) {
+                // Create the column array
+                for (int y = 0; y < height; y++) {
+                    // Populate the column array with pixel values
+                    imageArray[x, y] = flatArray[y * width + x];
+                }
+            }
+
+            return imageArray;
+        }
+
         public static IResponse NotImplementedResponse(uint clientTransactionId, uint serverTransactionId) {
             return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, "The operation is not implemented");
         }

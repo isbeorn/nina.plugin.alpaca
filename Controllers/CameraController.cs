@@ -497,18 +497,25 @@ namespace NINA.Alpaca.Controllers {
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/imagearray")]
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/imagearrayvariant")]
-        public async Task<IResponse> GetImageArray(
+        public async Task GetImageArray(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            if (exposureTask is null && lastExposure is null) { return new EmptyResponse(ClientTransactionID, txId++, AlpacaErrors.InvalidOperationException, "Image is not ready"); }
+            if (exposureTask is null && lastExposure is null) {
+                var response = AlpacaTools.ToByteArray(null, 1, ClientTransactionID, txId++, AlpacaErrors.InvalidOperationException, "Image is not ready");
+                await HttpContext.Response.OutputStream.WriteAsync(response, 0, response.Length);
+            }
             if (exposureTask is not null) {
                 exposureTask = null;
                 isExposing = false;
                 lastExposure = await DeviceMediator.Download(default);
             }
             var imageData = await lastExposure.ToImageData();
-            return new ImageResponse(imageData.Data.FlatArray, imageData.Properties.Width, imageData.Properties.Height, ClientTransactionID, txId++, AlpacaErrors.AlpacaNoError, string.Empty);
+            Response.ContentType = "application/imagebytes";
+            HttpContext.Response.ContentType = "application/imagebytes";
+            var ascomArray = AlpacaHelpers.ConvertToMonochromeArray(imageData.Data.FlatArray, imageData.Properties.Width, imageData.Properties.Height);
+            var byteArray = AlpacaTools.ToByteArray(ascomArray, 1, ClientTransactionID, txId++, AlpacaErrors.AlpacaNoError, "");
+            await HttpContext.Response.OutputStream.WriteAsync(byteArray, 0, byteArray.Length);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/imageready")]

@@ -221,7 +221,10 @@ namespace NINA.Alpaca.Controllers {
             [Required][FormField] bool TempComp,
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => DeviceMediator.ToggleTempComp(TempComp));
+            return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => {
+                if (!DeviceMediator.GetInfo().TempComp) { throw new ASCOM.PropertyNotImplementedException(nameof(TempComp), true); }
+                DeviceMediator.ToggleTempComp(TempComp);
+            });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/tempcompavailable")]

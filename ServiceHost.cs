@@ -57,6 +57,7 @@ namespace NINA.Alpaca {
                         IFocuserMediator focuserMediator,
                         IFilterWheelMediator filterWheelMediator,
                         IRotatorMediator rotatorMediator,
+                        ISwitchMediator switchMediator,
                         IWeatherDataMediator weatherMonitor,
                         IDomeMediator domeMediator,
                         ISafetyMonitorMediator safetyMonitor);
@@ -83,6 +84,7 @@ namespace NINA.Alpaca {
                                           IFocuserMediator focuserMediator,
                                           IFilterWheelMediator filterWheelMediator,
                                           IRotatorMediator rotatorMediator,
+                                          ISwitchMediator switchMediator,
                                           IWeatherDataMediator weatherMonitor,
                                           IDomeMediator domeMediator,
                                           ISafetyMonitorMediator safetyMonitor) {
@@ -97,6 +99,7 @@ namespace NINA.Alpaca {
                     .WithController<FocuserController>(() => new FocuserController(profileService, focuserMediator))
                     .WithController<FilterWheelController>(() => new FilterWheelController(profileService, filterWheelMediator))
                     .WithController<RotatorController>(() => new RotatorController(profileService, rotatorMediator))
+                    .WithController<SwitchController>(() => new SwitchController(profileService, switchMediator))
                     .WithController<WeatherDataController>(() => new WeatherDataController(profileService, weatherMonitor))
                     .WithController<DomeController>(() => new DomeController(profileService, domeMediator))
                     .WithController<SafetyMonitorController>(() => new SafetyMonitorController(profileService, safetyMonitor))
@@ -121,6 +124,7 @@ namespace NINA.Alpaca {
                                IFocuserMediator focuserMediator,
                                IFilterWheelMediator filterWheelMediator,
                                IRotatorMediator rotatorMediator,
+                               ISwitchMediator switchMediator,
                                IWeatherDataMediator weatherMonitor,
                                IDomeMediator domeMediator,
                                ISafetyMonitorMediator safetyMonitor) {
@@ -130,7 +134,7 @@ namespace NINA.Alpaca {
             }
 
             try {
-                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, weatherMonitor, domeMediator, safetyMonitor);
+                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, switchMediator, weatherMonitor, domeMediator, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 IsRunning = true;
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {

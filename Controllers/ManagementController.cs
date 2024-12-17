@@ -38,12 +38,12 @@ namespace NINA.Alpaca.Controllers {
                 new AlpacaConfiguredDevice("N.I.N.A. Focuser", "Focuser", 0, FocuserController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Filter Wheel", "FilterWheel", 0, FilterWheelController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Rotator", "Rotator", 0, RotatorController.Id.ToString()),
+                new AlpacaConfiguredDevice("N.I.N.A. Switch", "Switch", 0, SwitchController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Dome", "Dome", 0, DomeController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Weather Device", "ObservingConditions", 0, WeatherDataController.Id.ToString()),
                 new AlpacaConfiguredDevice("N.I.N.A. Safety Monitor", "SafetyMonitor", 0, SafetyMonitorController.Id.ToString())
 
                 // Mount
-                // Switch
                 // Flatpanel
             };
             return new AlpacaConfiguredDevicesResponse(ClientTransactionID, txId++, devices);

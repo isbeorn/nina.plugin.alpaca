@@ -68,7 +68,7 @@ namespace NINA.Alpaca.Controllers {
                 action();
             } catch (NotImplementedException ex) {
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
-            } catch (ASCOM.PropertyNotImplementedException ex) {
+            } catch (ASCOM.NotImplementedException ex) {
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (InvalidOperationException ex) {
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.InvalidOperationException, ex.Message);
@@ -88,7 +88,7 @@ namespace NINA.Alpaca.Controllers {
                 await action();
             } catch (NotImplementedException ex) {
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
-            } catch (ASCOM.PropertyNotImplementedException ex) {
+            } catch (ASCOM.NotImplementedException ex) {
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (InvalidOperationException ex) {
                 return new EmptyResponse(clientTransactionId, serverTransactionId, AlpacaErrors.InvalidOperationException, ex.Message);
@@ -109,7 +109,7 @@ namespace NINA.Alpaca.Controllers {
                 value = action();
             } catch (NotImplementedException ex) {
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
-            } catch (ASCOM.PropertyNotImplementedException ex) {
+            } catch (ASCOM.NotImplementedException ex) {
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (InvalidOperationException ex) {
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.InvalidOperationException, ex.Message);
@@ -130,7 +130,7 @@ namespace NINA.Alpaca.Controllers {
                 value = await action();
             } catch (NotImplementedException ex) {
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
-            } catch (ASCOM.PropertyNotImplementedException ex) {
+            } catch (ASCOM.NotImplementedException ex) {
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.NotImplemented, ex.Message);
             } catch (InvalidOperationException ex) {
                 return new ValueResponse<T>(value, clientTransactionId, serverTransactionId, AlpacaErrors.InvalidOperationException, ex.Message);

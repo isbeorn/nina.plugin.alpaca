@@ -38,6 +38,7 @@ namespace NINA.Alpaca {
         private readonly IFocuserMediator focuserMediator;
         private readonly IFilterWheelMediator filterWheelMediator;
         private readonly IRotatorMediator rotatorMediator;
+        private readonly ISwitchMediator switchMediator;
         private readonly IWeatherDataMediator weatherMonitor;
         private readonly IDomeMediator domeMediator;
         private readonly ISafetyMonitorMediator safetyMonitor;
@@ -52,6 +53,7 @@ namespace NINA.Alpaca {
                       IFocuserMediator focuserMediator,
                       IFilterWheelMediator filterWheelMediator,
                       IRotatorMediator rotatorMediator,
+                      ISwitchMediator switchMediator,
                       IWeatherDataMediator weatherMonitor,
                       IDomeMediator domeMediator,
                       ISafetyMonitorMediator safetyMonitor) {
@@ -68,6 +70,7 @@ namespace NINA.Alpaca {
             this.focuserMediator = focuserMediator;
             this.filterWheelMediator = filterWheelMediator;
             this.rotatorMediator = rotatorMediator;
+            this.switchMediator = switchMediator;
             this.weatherMonitor = weatherMonitor;
             this.domeMediator = domeMediator;
             this.safetyMonitor = safetyMonitor;
@@ -108,7 +111,16 @@ namespace NINA.Alpaca {
             if (serviceHost.IsRunning) {
                 serviceHost.Stop();
             }
-            serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, weatherMonitor, domeMediator, safetyMonitor);
+            serviceHost.RunService(AlpacaDevicePort,
+                                   profileService,
+                                   cameraMediator,
+                                   focuserMediator,
+                                   filterWheelMediator,
+                                   rotatorMediator,
+                                   switchMediator,
+                                   weatherMonitor,
+                                   domeMediator,
+                                   safetyMonitor);
             DiscoveryManager.Start(AlpacaDevicePort);
         }
 

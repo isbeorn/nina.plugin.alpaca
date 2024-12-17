@@ -10,12 +10,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace NINA.Alpaca.Controllers {
 
     public class WeatherDataController : WebApiController {
         public static readonly Guid Id = Guid.Parse("A720ACCC-9A4C-49CB-B483-7412D388033E");
         private static uint txId = 0;
+        private static Dictionary<uint, bool> connectionState = new Dictionary<uint, bool>();
 
         private const string BaseURL = "/api/v1/observingconditions";
         private const int InterfaceVersion = 1; //ASCOM.Common.DeviceInterfaces.IObservingConditions
@@ -78,7 +80,7 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, async () => {
                 if (AlpacaHelpers.IsDeviceIdenticalWithAlpacaService(ProfileService, DeviceMediator)) {
-                    throw new InvalidOperationException("The application cannot connect to its own hosted Alpaca device. Please ensure the host is accessed by other applications only.");
+                    throw new ASCOM.InvalidOperationException("The application cannot connect to its own hosted Alpaca device. Please ensure the host is accessed by other applications only.");
                 }
 
                 if (Connected && !DeviceMediator.GetInfo().Connected) {
@@ -88,62 +90,69 @@ namespace NINA.Alpaca.Controllers {
                         throw;
                     }
                 }
+
+                if (connectionState.ContainsKey(ClientID)) {
+                    connectionState[ClientID] = Connected;
+                } else {
+                    connectionState.Add(ClientID, Connected);
+                }
             });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/connected")]
         public IValueResponse<bool> GetConnected(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Connected);
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            connectionState.TryGetValue(ClientID, out var value2);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => connectionState.TryGetValue(ClientID, out var value) ? value : false);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/description")]
         public IValueResponse<string> GetDescription(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [Range(0, uint.MaxValue)] uint ClientID = 0,
-            [Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Description);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/driverinfo")]
         public IValueResponse<string> GetDriverInfo(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().DriverInfo);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/driverversion")]
         public IValueResponse<string> GetDriverVersion(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().DriverVersion);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/interfaceversion")]
         public IValueResponse<int> GetInterfaceVersion(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => InterfaceVersion);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/name")]
         public IValueResponse<string> GetName(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Name);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/supportedactions")]
         public IValueResponse<IList<string>> GetSupportedActions(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().SupportedActions);
         }
 
@@ -152,8 +161,8 @@ namespace NINA.Alpaca.Controllers {
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/averageperiod")]
         public IValueResponse<double> GetAveragePeriod(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().AveragePeriod is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
@@ -168,104 +177,104 @@ namespace NINA.Alpaca.Controllers {
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/cloudcover")]
         public IValueResponse<double> GetCloudCover(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().CloudCover is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/dewpoint")]
         public IValueResponse<double> GetDewPoint(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().DewPoint is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/humidity")]
         public IValueResponse<double> GetHumidity(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Humidity is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/pressure")]
         public IValueResponse<double> GetPressure(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Pressure is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/rainrate")]
         public IValueResponse<double> GetRainRate(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().RainRate is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/skybrightness")]
         public IValueResponse<double> GetSkyBrightness(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().SkyBrightness is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/skyquality")]
         public IValueResponse<double> GetSkyQuality(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().SkyQuality is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/skytemperature")]
         public IValueResponse<double> GetSkyTemperature(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().SkyTemperature is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/starfwhm")]
         public IValueResponse<double> GetStarFWHM(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().StarFWHM is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/temperature")]
         public IValueResponse<double> GetTemperature(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Temperature is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/winddirection")]
         public IValueResponse<double> GetWindDirection(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().WindDirection is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/windgust")]
         public IValueResponse<double> GetWindGust(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().WindGust is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/windspeed")]
         public IValueResponse<double> GetWindSpeed(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().WindSpeed is double value && !double.IsNaN(value) ? value : throw new NotImplementedException());
         }
 
@@ -280,16 +289,17 @@ namespace NINA.Alpaca.Controllers {
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/sensordescription")]
         public IValueResponse<string> GetSensorDescription(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [Required] string SensorName,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Name);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/timesincelastupdate")]
         public IResponse GetTimeSinceLastUpdate(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.NotImplementedResponse(ClientTransactionID, txId++);
         }
     }

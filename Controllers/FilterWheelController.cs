@@ -18,6 +18,7 @@ namespace NINA.Alpaca.Controllers {
     public class FilterWheelController : WebApiController {
         public static readonly Guid Id = Guid.Parse("A2E479D5-F9AD-4972-B9B2-35E849532754");
         private static uint txId = 0;
+        private static Dictionary<uint, bool> connectionState = new Dictionary<uint, bool>();
 
         private const string BaseURL = "/api/v1/filterwheel";
         private const int InterfaceVersion = 2; //ASCOM.Common.DeviceInterfaces.IFilterWheelV2
@@ -90,62 +91,69 @@ namespace NINA.Alpaca.Controllers {
                         throw;
                     }
                 }
+
+                if (connectionState.ContainsKey(ClientID)) {
+                    connectionState[ClientID] = Connected;
+                } else {
+                    connectionState.Add(ClientID, Connected);
+                }
             });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/connected")]
         public IValueResponse<bool> GetConnected(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Connected);
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            connectionState.TryGetValue(ClientID, out var value2);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => connectionState.TryGetValue(ClientID, out var value) ? value : false);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/description")]
         public IValueResponse<string> GetDescription(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [Range(0, uint.MaxValue)] uint ClientID = 0,
-            [Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Description);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/driverinfo")]
         public IValueResponse<string> GetDriverInfo(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().DriverInfo);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/driverversion")]
         public IValueResponse<string> GetDriverVersion(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().DriverVersion);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/interfaceversion")]
         public IValueResponse<int> GetInterfaceVersion(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => InterfaceVersion);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/name")]
         public IValueResponse<string> GetName(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().Name);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/supportedactions")]
         public IValueResponse<IList<string>> GetSupportedActions(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().SupportedActions);
         }
 
@@ -154,8 +162,8 @@ namespace NINA.Alpaca.Controllers {
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/position")]
         public IValueResponse<short> GetPosition(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().IsMoving ? (short)-1 : (DeviceMediator.GetInfo().SelectedFilter?.Position ?? -1));
         }
 
@@ -173,16 +181,16 @@ namespace NINA.Alpaca.Controllers {
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/names")]
         public IValueResponse<List<string>> GetNames(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => ProfileService.ActiveProfile.FilterWheelSettings.FilterWheelFilters.Select(x => x.Name).ToList());
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/focusoffsets")]
         public IValueResponse<List<int>> GetOffsets(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
-            [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
-            [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
+            [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
+            [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => ProfileService.ActiveProfile.FilterWheelSettings.FilterWheelFilters.Select(x => x.FocusOffset).ToList());
         }
     }

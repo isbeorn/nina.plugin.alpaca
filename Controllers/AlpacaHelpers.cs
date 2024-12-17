@@ -36,7 +36,7 @@ namespace NINA.Alpaca.Controllers {
             return false;
         }
 
-        public static int[,] ConvertToMonochromeArray(ushort[] flatArray, int width, int height) {
+        public static Array ConvertTo2dArray(ushort[] flatArray, int width, int height) {
             // Validate inputs
             if (flatArray == null)
                 throw new ArgumentNullException(nameof(flatArray));

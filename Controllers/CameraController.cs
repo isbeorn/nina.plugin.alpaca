@@ -522,8 +522,8 @@ namespace NINA.Alpaca.Controllers {
             Response.ContentType = "application/imagebytes";
             HttpContext.Response.ContentType = "application/imagebytes";
 
-            var ascomArray = AlpacaHelpers.ConvertToMonochromeArray(imageData.Data.FlatArray, imageData.Properties.Width, imageData.Properties.Height);
-            var byteArray = AlpacaTools.ToByteArray(ascomArray, 1, ClientTransactionID, txId++, AlpacaErrors.AlpacaNoError, "");
+            var ascomArray = AlpacaHelpers.ConvertTo2dArray(imageData.Data.FlatArray, imageData.Properties.Width, imageData.Properties.Height);
+            var byteArray = ascomArray.ToByteArray(1, ClientTransactionID, txId++, AlpacaErrors.AlpacaNoError, "");
             await HttpContext.Response.OutputStream.WriteAsync(byteArray, 0, byteArray.Length);
         }
 

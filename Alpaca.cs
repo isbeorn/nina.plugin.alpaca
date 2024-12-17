@@ -94,8 +94,9 @@ namespace NINA.Alpaca {
             DiscoveryManager.Start(AlpacaDevicePort);
 
             if (serviceHost.IsRunning) {
-                serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
+                serviceHost.Stop();
             }
+            serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

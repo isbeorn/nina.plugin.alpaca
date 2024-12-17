@@ -513,6 +513,7 @@ namespace NINA.Alpaca.Controllers {
             var imageData = await lastExposure.ToImageData();
             Response.ContentType = "application/imagebytes";
             HttpContext.Response.ContentType = "application/imagebytes";
+
             var ascomArray = AlpacaHelpers.ConvertToMonochromeArray(imageData.Data.FlatArray, imageData.Properties.Width, imageData.Properties.Height);
             var byteArray = AlpacaTools.ToByteArray(ascomArray, 1, ClientTransactionID, txId++, AlpacaErrors.AlpacaNoError, "");
             await HttpContext.Response.OutputStream.WriteAsync(byteArray, 0, byteArray.Length);
@@ -858,6 +859,7 @@ namespace NINA.Alpaca.Controllers {
                 seq.Dither = false;
                 exposureTask = DeviceMediator.Capture(seq, default, new Progress<ApplicationStatus>());
                 exposureTask.ContinueWith(t => isExposing = false);
+                lastExposure = null;
                 isExposing = true;
             });
         }

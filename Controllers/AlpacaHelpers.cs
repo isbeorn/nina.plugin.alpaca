@@ -36,7 +36,7 @@ namespace NINA.Alpaca.Controllers {
             return false;
         }
 
-        public static ushort[,] ConvertToMonochromeArray(ushort[] flatArray, int width, int height) {
+        public static int[,] ConvertToMonochromeArray(ushort[] flatArray, int width, int height) {
             // Validate inputs
             if (flatArray == null)
                 throw new ArgumentNullException(nameof(flatArray));
@@ -46,7 +46,7 @@ namespace NINA.Alpaca.Controllers {
                 throw new ArgumentException("Width and height must be positive integers.");
 
             // Initialize the jagged array
-            ushort[,] imageArray = new ushort[width, height];
+            int[,] imageArray = new int[width, height];
 
             for (int x = 0; x < width; x++) {
                 // Create the column array

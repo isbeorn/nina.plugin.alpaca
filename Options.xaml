@@ -5,5 +5,25 @@
     <!--  This data template will be displayed in N.I.N.A. on the options->plugin tab with the datacontext of the TestPlugin instance  -->
     <!--  In order for this datatemplate to be picked correctly, the key has to follow the naming convention of <IPlugin.Name>_Options -->
     <!--  Furthermore the Resource Dictionary has to be exported via code behind export attributes  -->
-    <DataTemplate x:Key="Alpaca_Options" />
+    <DataTemplate x:Key="Alpaca_Options">
+        <StackPanel Orientation="Vertical">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="Alpaca_Options_Label" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Text="Run webservice on port: " />
+                <TextBox
+                    Grid.Column="1"
+                    MinWidth="75"
+                    MaxWidth="150"
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Left"
+                    Text="{Binding AlpacaDevicePort}" />
+            </Grid>
+        </StackPanel>
+    </DataTemplate>
 </ResourceDictionary>

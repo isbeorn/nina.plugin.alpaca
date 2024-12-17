@@ -91,12 +91,11 @@ namespace NINA.Alpaca {
                 DiscoveryManager.Stop();
             }
 
-            DiscoveryManager.Start(AlpacaDevicePort);
-
             if (serviceHost.IsRunning) {
                 serviceHost.Stop();
             }
             serviceHost.RunService(AlpacaDevicePort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
+            DiscoveryManager.Start(AlpacaDevicePort);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

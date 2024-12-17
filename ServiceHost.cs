@@ -105,12 +105,13 @@ namespace NINA.Alpaca {
             try {
                 webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, filterWheelMediator, weatherMonitor, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
+                IsRunning = true;
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
                     if (task.Exception != null) {
                         if (task.Exception is AggregateException aggregateException && aggregateException.InnerException != null) {
                             Logger.Error("Failed to start Alpaca Server", aggregateException.InnerException);
                             Notification.ShowError("Failed to start Alpaca Server: " + aggregateException.InnerException.Message);
-                            IsRunning = true;
+                            IsRunning = false;
                         } else {
                             Logger.Error("Failed to start Alpaca Server", task.Exception);
                             Notification.ShowError("Failed to start Alpaca Server: " + task.Exception.ToString());
@@ -131,7 +132,6 @@ namespace NINA.Alpaca {
                 Logger.Info("Stopping Alpaca Service");
                 try {
                     serviceToken?.Cancel();
-                    Notification.ShowInformation($"Alpaca Server emulation stopped");
                     Logger.Info("Alpaca Service stopped");
                 } catch (Exception ex) {
                     Logger.Error("Failed to stop Alpaca Server", ex);

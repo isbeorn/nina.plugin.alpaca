@@ -30,11 +30,11 @@ namespace NINA.Alpaca {
                     break;
 
                 case Swan.Logging.LogLevel.Warning:
-                    Logger.Warning(logEvent.Message);
+                    Logger.Debug(logEvent.Message);
                     break;
 
                 case Swan.Logging.LogLevel.Info:
-                    Logger.Info(logEvent.Message);
+                    Logger.Debug(logEvent.Message);
                     break;
 
                 case Swan.Logging.LogLevel.Debug:

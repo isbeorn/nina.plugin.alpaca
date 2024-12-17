@@ -13,9 +13,9 @@ namespace NINA.Alpaca.Controllers {
 
     internal static class AlpacaHelpers {
 
-        public static bool IsDeviceIdenticalWithAlpacaService(IProfileService profileService, object deviceMediator) {
+        public static bool IsDeviceIdenticalWithAlpacaService(IProfileService profileService, object deviceMediator, Guid serviceId) {
             if (Guid.TryParse(profileService.ActiveProfile.SafetyMonitorSettings.Id, out var id)) {
-                if (id == SafetyMonitorController.Id) {
+                if (id == serviceId) {
                     return true;
                 }
             }
@@ -27,7 +27,7 @@ namespace NINA.Alpaca.Controllers {
                 var handlerInfo = handlerType.GetProperty("DeviceChooserVM", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
                 var chooser = (IDeviceChooserVM)handlerInfo.GetValue(handler);
                 if (Guid.TryParse(chooser.SelectedDevice.Id, out var selectedId)) {
-                    if (selectedId == SafetyMonitorController.Id) {
+                    if (selectedId == serviceId) {
                         return true;
                     }
                 }

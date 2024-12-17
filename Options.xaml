@@ -15,7 +15,7 @@
                 <TextBlock
                     Grid.Column="0"
                     VerticalAlignment="Center"
-                    Text="Run webservice on port: " />
+                    Text="Host alpaca devices on port: " />
                 <TextBox
                     Grid.Column="1"
                     MinWidth="75"

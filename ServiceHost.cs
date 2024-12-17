@@ -97,7 +97,7 @@ namespace NINA.Alpaca {
         }
 
         public void RunService(int alpacaPort, IProfileService profileService, ICameraMediator cameraMediator, IFilterWheelMediator filterWheelMediator, IWeatherDataMediator weatherMonitor, ISafetyMonitorMediator safetyMonitor) {
-            if (this.webServer != null) {
+            if (IsRunning) {
                 Logger.Trace("Alpaca Service already running during start attempt");
                 return;
             }
@@ -108,14 +108,13 @@ namespace NINA.Alpaca {
                 IsRunning = true;
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
                     if (task.Exception != null) {
+                        IsRunning = false;
                         if (task.Exception is AggregateException aggregateException && aggregateException.InnerException != null) {
                             Logger.Error("Failed to start Alpaca Server", aggregateException.InnerException);
                             Notification.ShowError("Failed to start Alpaca Server: " + aggregateException.InnerException.Message);
-                            IsRunning = false;
                         } else {
                             Logger.Error("Failed to start Alpaca Server", task.Exception);
                             Notification.ShowError("Failed to start Alpaca Server: " + task.Exception.ToString());
-                            IsRunning = false;
                         }
                     }
                 });

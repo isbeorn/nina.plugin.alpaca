@@ -58,6 +58,7 @@ namespace NINA.Alpaca {
                         IFilterWheelMediator filterWheelMediator,
                         IRotatorMediator rotatorMediator,
                         ISwitchMediator switchMediator,
+                        IFlatDeviceMediator flatDeviceMediator,
                         IWeatherDataMediator weatherMonitor,
                         IDomeMediator domeMediator,
                         ISafetyMonitorMediator safetyMonitor);
@@ -85,6 +86,7 @@ namespace NINA.Alpaca {
                                           IFilterWheelMediator filterWheelMediator,
                                           IRotatorMediator rotatorMediator,
                                           ISwitchMediator switchMediator,
+                                          IFlatDeviceMediator flatDeviceMediator,
                                           IWeatherDataMediator weatherMonitor,
                                           IDomeMediator domeMediator,
                                           ISafetyMonitorMediator safetyMonitor) {
@@ -94,15 +96,16 @@ namespace NINA.Alpaca {
                 .WithUrlPrefix($"http://*:{alpacaPort}/")
                 .WithMode(HttpListenerMode.EmbedIO))
                 .WithWebApi("/", MyResponseSerializerCallback, m => m
-                    .WithController<ManagementController>(() => new ManagementController())
-                    .WithController<CameraController>(() => new CameraController(profileService, cameraMediator))
-                    .WithController<FocuserController>(() => new FocuserController(profileService, focuserMediator))
-                    .WithController<FilterWheelController>(() => new FilterWheelController(profileService, filterWheelMediator))
-                    .WithController<RotatorController>(() => new RotatorController(profileService, rotatorMediator))
-                    .WithController<SwitchController>(() => new SwitchController(profileService, switchMediator))
-                    .WithController<WeatherDataController>(() => new WeatherDataController(profileService, weatherMonitor))
-                    .WithController<DomeController>(() => new DomeController(profileService, domeMediator))
-                    .WithController<SafetyMonitorController>(() => new SafetyMonitorController(profileService, safetyMonitor))
+                    .WithController(() => new ManagementController())
+                    .WithController(() => new CameraController(profileService, cameraMediator))
+                    .WithController(() => new FocuserController(profileService, focuserMediator))
+                    .WithController(() => new FilterWheelController(profileService, filterWheelMediator))
+                    .WithController(() => new RotatorController(profileService, rotatorMediator))
+                    .WithController(() => new SwitchController(profileService, switchMediator))
+                    .WithController(() => new CoverCalibratorController(profileService, flatDeviceMediator))
+                    .WithController(() => new WeatherDataController(profileService, weatherMonitor))
+                    .WithController(() => new DomeController(profileService, domeMediator))
+                    .WithController(() => new SafetyMonitorController(profileService, safetyMonitor))
                 );
         }
 
@@ -125,6 +128,7 @@ namespace NINA.Alpaca {
                                IFilterWheelMediator filterWheelMediator,
                                IRotatorMediator rotatorMediator,
                                ISwitchMediator switchMediator,
+                               IFlatDeviceMediator flatDeviceMediator,
                                IWeatherDataMediator weatherMonitor,
                                IDomeMediator domeMediator,
                                ISafetyMonitorMediator safetyMonitor) {
@@ -134,7 +138,7 @@ namespace NINA.Alpaca {
             }
 
             try {
-                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, switchMediator, weatherMonitor, domeMediator, safetyMonitor);
+                webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, switchMediator, flatDeviceMediator, weatherMonitor, domeMediator, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 IsRunning = true;
                 webServer.RunAsync(serviceToken.Token).ContinueWith(task => {

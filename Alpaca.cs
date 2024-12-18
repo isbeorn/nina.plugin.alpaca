@@ -100,7 +100,7 @@ namespace NINA.Alpaca {
 
         public int AlpacaDevicePort {
             get {
-                return pluginSettings.GetValueInt32(nameof(AlpacaDevicePort), 32323);
+                return pluginSettings.GetValueInt32(nameof(AlpacaDevicePort), 32330);
             }
             set {
                 pluginSettings.SetValueInt32(nameof(AlpacaDevicePort), value);

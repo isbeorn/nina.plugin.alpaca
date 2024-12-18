@@ -574,7 +574,7 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (DeviceMediator.GetDevice() as ICamera).MaxBinX);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (DeviceMediator.GetDevice() as ICamera)?.MaxBinX ?? 1);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/maxbiny")]
@@ -582,7 +582,7 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (DeviceMediator.GetDevice() as ICamera).MaxBinY);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (DeviceMediator.GetDevice() as ICamera)?.MaxBinY ?? 1);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/numx")]

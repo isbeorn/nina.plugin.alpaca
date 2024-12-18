@@ -95,6 +95,7 @@ namespace NINA.Alpaca {
         }
 
         private void ProfileService_ProfileChanged(object sender, EventArgs e) {
+            RestartService();
         }
 
         public int AlpacaDevicePort {

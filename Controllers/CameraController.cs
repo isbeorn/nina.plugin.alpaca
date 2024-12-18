@@ -562,11 +562,11 @@ namespace NINA.Alpaca.Controllers {
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/maxadu")]
-        public IResponse GetMaxADU(
+        public IValueResponse<int> GetMaxADU(
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.NotImplementedResponse(ClientTransactionID, txId++);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (int)ushort.MaxValue);
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/maxbinx")]

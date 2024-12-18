@@ -14,11 +14,6 @@ namespace NINA.Alpaca.Controllers {
     internal static class AlpacaHelpers {
 
         public static bool IsDeviceIdenticalWithAlpacaService(IProfileService profileService, object deviceMediator, Guid serviceId) {
-            if (Guid.TryParse(profileService.ActiveProfile.SafetyMonitorSettings.Id, out var id)) {
-                if (id == serviceId) {
-                    return true;
-                }
-            }
             try {
                 var type = deviceMediator.GetType();
                 var info = type.GetField("handler", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

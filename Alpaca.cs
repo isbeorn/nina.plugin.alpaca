@@ -38,6 +38,7 @@ namespace NINA.Alpaca {
         private readonly IFocuserMediator focuserMediator;
         private readonly IFilterWheelMediator filterWheelMediator;
         private readonly IRotatorMediator rotatorMediator;
+        private readonly ITelescopeMediator telescopeMediator;
         private readonly ISwitchMediator switchMediator;
         private readonly IFlatDeviceMediator flatDeviceMediator;
         private readonly IWeatherDataMediator weatherMonitor;
@@ -54,6 +55,7 @@ namespace NINA.Alpaca {
                       IFocuserMediator focuserMediator,
                       IFilterWheelMediator filterWheelMediator,
                       IRotatorMediator rotatorMediator,
+                      ITelescopeMediator telescopeMediator,
                       ISwitchMediator switchMediator,
                       IFlatDeviceMediator flatDeviceMediator,
                       IWeatherDataMediator weatherMonitor,
@@ -72,6 +74,7 @@ namespace NINA.Alpaca {
             this.focuserMediator = focuserMediator;
             this.filterWheelMediator = filterWheelMediator;
             this.rotatorMediator = rotatorMediator;
+            this.telescopeMediator = telescopeMediator;
             this.switchMediator = switchMediator;
             this.flatDeviceMediator = flatDeviceMediator;
             this.weatherMonitor = weatherMonitor;
@@ -120,6 +123,7 @@ namespace NINA.Alpaca {
                                    focuserMediator,
                                    filterWheelMediator,
                                    rotatorMediator,
+                                   telescopeMediator,
                                    switchMediator,
                                    flatDeviceMediator,
                                    weatherMonitor,

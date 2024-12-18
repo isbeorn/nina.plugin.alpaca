@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2024 Stefan Berg")]
 
 // The minimum Version of N.I.N.A. that this plugin is compatible with
-[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
+[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.2.0.1001")]
 
 // The license your plugin code is using
 [assembly: AssemblyMetadata("License", "MPL-2.0")]
@@ -54,7 +54,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyMetadata("AltScreenshotURL", "")]
 //[Optional] An in-depth description of your plugin
 [assembly: AssemblyMetadata("LongDescription", @"
-This plugin exposes all devices connected to N.I.N.A. as Alpaca devices over the network, enabling control of your equipment from any ASCOM/Alpaca-compliant software or client. Each device is tightly integrated with N.I.N.A.'s interface abstractions, ensuring seamless operation and access to N.I.N.A.'s advanced features.
+This plugin exposes all N.I.N.A. devices as Alpaca devices over the network, enabling control of your equipment from any ASCOM/Alpaca-compliant software or client. Each device is tightly integrated with N.I.N.A.'s interface abstractions, ensuring seamless operation and access to N.I.N.A.'s advanced features.
 
 Additionally, exposing devices via Alpaca allows native or in-process drivers in N.I.N.A. to be shared with other applications.
 

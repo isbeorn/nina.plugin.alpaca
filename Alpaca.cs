@@ -98,6 +98,18 @@ namespace NINA.Alpaca {
             RestartService();
         }
 
+        public bool ServerEnabled {
+            get {
+                return pluginSettings.GetValueBoolean(nameof(ServerEnabled), true);
+            }
+            set {
+                pluginSettings.SetValueBoolean(nameof(ServerEnabled), value);
+                RaisePropertyChanged();
+
+                RestartService();
+            }
+        }
+
         public int AlpacaDevicePort {
             get {
                 return pluginSettings.GetValueInt32(nameof(AlpacaDevicePort), 32330);
@@ -118,6 +130,7 @@ namespace NINA.Alpaca {
             if (serviceHost.IsRunning) {
                 serviceHost.Stop();
             }
+            if (!ServerEnabled) { return; }
             serviceHost.RunService(AlpacaDevicePort,
                                    profileService,
                                    cameraMediator,

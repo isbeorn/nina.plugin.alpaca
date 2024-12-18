@@ -12,15 +12,31 @@
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Alpaca_Options_Label" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
                 <TextBlock
                     Grid.Column="0"
                     VerticalAlignment="Center"
+                    Text="Server enabled: " />
+                <CheckBox
+                    Grid.Column="1"
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding ServerEnabled, Mode=TwoWay}" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="0,5,0,0"
+                    VerticalAlignment="Center"
                     Text="Host alpaca devices on port: " />
                 <TextBox
+                    Grid.Row="1"
                     Grid.Column="1"
                     MinWidth="75"
                     MaxWidth="150"
-                    Margin="5,0,0,0"
+                    Margin="5,5,0,0"
                     HorizontalAlignment="Left"
                     Text="{Binding AlpacaDevicePort}" />
             </Grid>

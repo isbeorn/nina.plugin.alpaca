@@ -82,7 +82,9 @@ namespace NINA.Alpaca {
         }
 
         public static void Stop() {
-            DiscoveryResponder.Dispose();
+            try {
+                DiscoveryResponder?.Dispose();
+            } catch { }
         }
     }
 }

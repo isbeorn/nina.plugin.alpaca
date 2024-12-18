@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 
 // [MANDATORY] The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("1.0.0.1")]
-[assembly: AssemblyFileVersion("1.0.0.1")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
 
 // [MANDATORY] The name of your plugin
 [assembly: AssemblyTitle("Alpaca")]
@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2024 Stefan Berg")]
 
 // The minimum Version of N.I.N.A. that this plugin is compatible with
-[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.2017")]
+[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
 
 // The license your plugin code is using
 [assembly: AssemblyMetadata("License", "MPL-2.0")]
@@ -54,7 +54,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyMetadata("AltScreenshotURL", "")]
 //[Optional] An in-depth description of your plugin
 [assembly: AssemblyMetadata("LongDescription", @"
-This plugin allows you to expose all devices connected to N.I.N.A. as Alpaca devices over the network, which enables control of your connected N.I.N.A. equipment from any ASCOM/Alpaca-compliant software or client.
+This plugin exposes all devices connected to N.I.N.A. as Alpaca devices over the network, enabling control of your equipment from any ASCOM/Alpaca-compliant software or client. Each device is tightly integrated with N.I.N.A.'s interface abstractions, ensuring seamless operation and access to N.I.N.A.'s advanced features.
+
+Additionally, exposing devices via Alpaca allows native or in-process drivers in N.I.N.A. to be shared with other applications.
+
+Tip: For applications that cannot natively connect to Alpaca devices, you can use the ASCOM Chooser to make Alpaca drivers accessible as ASCOM drivers. See [Alpaca through the Chooser](https://ascom-standards.org/Help/Platform/html/e3870a2f-582a-4ab4-b37f-e9b1c37a2030.htm) in the ASCOM documentation for setup instructions.
+
 ")]
 
 // Setting ComVisible to false makes the types in this assembly not visible

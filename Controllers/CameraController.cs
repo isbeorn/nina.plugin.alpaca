@@ -730,7 +730,23 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (int)DeviceMediator.GetInfo().SensorType);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => (int)ToASCOMSensorType(DeviceMediator.GetInfo().SensorType));
+        }
+
+        private ASCOM.Common.DeviceInterfaces.SensorType ToASCOMSensorType(Core.Enum.SensorType sensorType) {
+            return sensorType switch {
+                Core.Enum.SensorType.BGGR => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.RGGB => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.GBRG => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.GRBG => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.GRGB => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.GBGR => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.RGBG => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.BGRG => ASCOM.Common.DeviceInterfaces.SensorType.RGGB,
+                Core.Enum.SensorType.CMYG => ASCOM.Common.DeviceInterfaces.SensorType.CMYG,
+                Core.Enum.SensorType.CMYG2 => ASCOM.Common.DeviceInterfaces.SensorType.CMYG2,
+                _ => ASCOM.Common.DeviceInterfaces.SensorType.Monochrome,
+            };
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/setccdtemperature")]

@@ -145,16 +145,22 @@ namespace NINA.Alpaca {
                 webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, telescopeMediator, switchMediator, flatDeviceMediator, weatherMonitor, domeMediator, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
                 IsRunning = true;
-                webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
+                webServer.RunAsync(serviceToken.Token).ContinueWith(async task => {
                     if (task.Exception != null) {
-                        IsRunning = false;
-                        if (task.Exception is AggregateException aggregateException && aggregateException.InnerException != null) {
-                            Logger.Error("Failed to start Alpaca Server", aggregateException.InnerException);
-                            Notification.ShowError("Failed to start Alpaca Server: " + aggregateException.InnerException.Message);
-                        } else {
-                            Logger.Error("Failed to start Alpaca Server", task.Exception);
-                            Notification.ShowError("Failed to start Alpaca Server: " + task.Exception.ToString());
-                        }
+                        Logger.Warning("Failed to start Alpaca Server - retry in 5 seconds");
+                        await Task.Delay(5000);
+                        _ = webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
+                            if (task.Exception != null) {
+                                IsRunning = false;
+                                if (task.Exception is AggregateException aggregateException && aggregateException.InnerException != null) {
+                                    Logger.Error("Failed to start Alpaca Server", aggregateException.InnerException);
+                                    Notification.ShowError("Failed to start Alpaca Server: " + aggregateException.InnerException.Message);
+                                } else {
+                                    Logger.Error("Failed to start Alpaca Server", task.Exception);
+                                    Notification.ShowError("Failed to start Alpaca Server: " + task.Exception.ToString());
+                                }
+                            }
+                        });
                     }
                 });
             } catch (Exception ex) {

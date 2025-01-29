@@ -144,12 +144,18 @@ namespace NINA.Alpaca {
             try {
                 webServer = CreateWebServer(alpacaPort, profileService, cameraMediator, focuserMediator, filterWheelMediator, rotatorMediator, telescopeMediator, switchMediator, flatDeviceMediator, weatherMonitor, domeMediator, safetyMonitor);
                 serviceToken = new CancellationTokenSource();
+                var token = serviceToken.Token;
                 IsRunning = true;
-                webServer.RunAsync(serviceToken.Token).ContinueWith(async task => {
+                webServer.RunAsync(token).ContinueWith(async task => {
                     if (task.Exception != null) {
                         Logger.Warning("Failed to start Alpaca Server - retry in 5 seconds");
-                        await Task.Delay(5000);
-                        _ = webServer.RunAsync(serviceToken.Token).ContinueWith(task => {
+                        try {
+                            await Task.Delay(5000, token);
+                        } catch (OperationCanceledException) {
+                            return;
+                        }
+
+                        _ = webServer.RunAsync(token).ContinueWith(task => {
                             if (task.Exception != null) {
                                 IsRunning = false;
                                 if (task.Exception is AggregateException aggregateException && aggregateException.InnerException != null) {

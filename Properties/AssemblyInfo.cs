@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("Stefan Berg @isbeorn")]
 // The product name that this plugin is part of
 [assembly: AssemblyProduct("Alpaca")]
-[assembly: AssemblyCopyright("Copyright © 2024 Stefan Berg")]
+[assembly: AssemblyCopyright("Copyright © 2025 Stefan Berg @isbeorn")]
 
 // The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.2.0.1001")]

@@ -5,11 +5,17 @@
     <RootNamespace>NINA.Alpaca</RootNamespace>
     <AssemblyName>NINA.Alpaca</AssemblyName>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AssemblyTitle>Alpaca</AssemblyTitle>
+    <Title>Alpaca</Title>
+    <Authors>Stefan Berg @isbeorn</Authors>
+    <Product>Alpaca</Product>
+    <Description>A plugin to host all N.I.N.A. devices as Alpaca Devices to be accessed from other applications</Description>
+    <Copyright>Copyright © 2021-2026</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EmbedIo" Version="3.5.2" />

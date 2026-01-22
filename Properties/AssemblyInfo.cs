@@ -9,21 +9,21 @@ using System.Runtime.InteropServices;
 
 // [MANDATORY] The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("1.0.1.1")]
-[assembly: AssemblyFileVersion("1.0.1.1")]
+//[assembly: AssemblyVersion("1.0.1.1")]
+//[assembly: AssemblyFileVersion("1.0.1.1")]
 
 // [MANDATORY] The name of your plugin
-[assembly: AssemblyTitle("Alpaca")]
+//[assembly: AssemblyTitle("Alpaca")]
 // [MANDATORY] A short description of your plugin
-[assembly: AssemblyDescription("A plugin to host all N.I.N.A. devices as Alpaca Devices to be accessed from other applications")]
+//[assembly: AssemblyDescription("A plugin to host all N.I.N.A. devices as Alpaca Devices to be accessed from other applications")]
 
 // The following attributes are not required for the plugin per se, but are required by the official manifest meta data
 
 // Your name
-[assembly: AssemblyCompany("Stefan Berg @isbeorn")]
+//[assembly: AssemblyCompany("Stefan Berg @isbeorn")]
 // The product name that this plugin is part of
-[assembly: AssemblyProduct("Alpaca")]
-[assembly: AssemblyCopyright("Copyright © 2025 Stefan Berg @isbeorn")]
+//[assembly: AssemblyProduct("Alpaca")]
+//[assembly: AssemblyCopyright("Copyright © 2025 Stefan Berg @isbeorn")]
 
 // The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.2.0.1001")]
@@ -67,7 +67,7 @@ Tip: For applications that cannot natively connect to Alpaca devices, you can us
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 // [Unused]
-[assembly: AssemblyConfiguration("")]
+//[assembly: AssemblyConfiguration("")]
 // [Unused]
 [assembly: AssemblyTrademark("")]
 // [Unused]

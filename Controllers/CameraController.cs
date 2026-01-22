@@ -438,7 +438,13 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => overrideGain.HasValue ? overrideGain.Value : DeviceMediator.GetInfo().Gain);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => {
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanGetGain) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                return overrideGain.HasValue ? overrideGain.Value : info.Gain;
+            });
         }
 
         [Route(HttpVerbs.Put, BaseURL + "/{DeviceNumber}/gain")]
@@ -448,8 +454,12 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => {
-                if (Gain < DeviceMediator.GetInfo().GainMin) { throw new ASCOM.InvalidValueException(); }
-                if (Gain > DeviceMediator.GetInfo().GainMax) { throw new ASCOM.InvalidValueException(); }
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanSetGain) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                if (Gain < info.GainMin) { throw new ASCOM.InvalidValueException(); }
+                if (Gain > info.GainMax) { throw new ASCOM.InvalidValueException(); }
                 overrideGain = Gain;
             });
         }
@@ -459,7 +469,13 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().GainMax);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => {
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanGetGain) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                return info.GainMax;
+            });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/gainmin")]
@@ -467,7 +483,13 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().GainMin);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => {
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanGetGain) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                return info.GainMin;
+            });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/gains")]
@@ -628,7 +650,13 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => overrideOffset.HasValue ? overrideOffset.Value : DeviceMediator.GetInfo().Offset);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => {
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanSetOffset) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                return overrideOffset.HasValue ? overrideOffset.Value : info.Offset;
+            });
         }
 
         [Route(HttpVerbs.Put, BaseURL + "/{DeviceNumber}/offset")]
@@ -638,8 +666,12 @@ namespace NINA.Alpaca.Controllers {
             [FormField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [FormField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
             return AlpacaHelpers.HandleEmptyResponse(ClientTransactionID, txId++, () => {
-                if (Offset < DeviceMediator.GetInfo().OffsetMin) { throw new ASCOM.InvalidValueException(); }
-                if (Offset > DeviceMediator.GetInfo().OffsetMax) { throw new ASCOM.InvalidValueException(); }
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanSetOffset) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                if (Offset < info.OffsetMin) { throw new ASCOM.InvalidValueException(); }
+                if (Offset > info.OffsetMax) { throw new ASCOM.InvalidValueException(); }
                 overrideOffset = Offset;
             });
         }
@@ -649,7 +681,13 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().OffsetMax);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => {
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanSetOffset) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                return info.OffsetMax;
+            });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/offsetmin")]
@@ -657,7 +695,13 @@ namespace NINA.Alpaca.Controllers {
             [Required][Range(0, uint.MaxValue)] uint DeviceNumber,
             [QueryField][Range(0, uint.MaxValue)] uint ClientID = 0,
             [QueryField][Range(0, uint.MaxValue)] uint ClientTransactionID = 0) {
-            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => DeviceMediator.GetInfo().OffsetMin);
+            return AlpacaHelpers.HandleValueResponse(ClientTransactionID, txId++, () => {
+                var info = DeviceMediator.GetInfo();
+                if (!info.CanSetOffset) {
+                    throw new ASCOM.PropertyNotImplementedException();
+                }
+                return info.OffsetMin;
+            });
         }
 
         [Route(HttpVerbs.Get, BaseURL + "/{DeviceNumber}/offsets")]

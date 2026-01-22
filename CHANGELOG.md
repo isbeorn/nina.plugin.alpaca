@@ -1,5 +1,8 @@
 ﻿# Alpaca
 
+## 1.0.2.0
+- Properly handle when Gain or Offset is not available
+
 ## 1.0.1.0
 - Fix camera sensortype being reported incorrectly
 - Add a retry after 5 seconds when server start fails
